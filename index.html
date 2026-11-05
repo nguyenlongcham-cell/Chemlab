@@ -1838,6 +1838,44 @@ body.exam-on.exam-away::after { content: '🔒 Bài thi đang bị che – hãy 
   #teacherModal .student-link-box { padding: 10px; }
   .student-link-input-wrap button { flex: 1 1 auto; }
 }
+
+/* ===== Không để chữ đè lên cảnh 3D / hiện tượng (máy tính & điện thoại) =====
+   Cảnh 3D nằm giữa hai dải chữ có chiều cao cố định: trên (tên TN, mục tiêu, lời thoại hiện tượng), dưới (thông báo, mẹo, máy tự làm) */
+.stage { display: flex !important; flex-direction: column; background: #0d2137; }
+#stage3d { position: relative !important; inset: auto !important; flex: 1 1 auto; min-height: 0; }
+.stage-top { flex: 0 0 auto; display: flex; align-items: flex-start; gap: 10px; padding: 7px 12px 6px; background: #0d2137; border-bottom: 1px solid rgba(148,163,184,.18); position: relative; z-index: 5; }
+.stage-top .exp-head { position: static !important; max-width: none !important; flex: 1 1 auto; min-width: 0; }
+.stage-top .exp-head h2 { margin: 0; font-size: 16px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: none; }
+.stage-sub { position: relative; height: 38px; margin-top: 2px; }
+.stage-sub > * { position: absolute !important; inset: 0 !important; margin: 0 !important; transform: none !important; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 19px !important; font-size: 13.5px !important; text-align: left !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; padding: 0 !important; max-width: none !important; background: #0d2137 !important; text-shadow: none !important; }
+.stage-sub #expGoal { color: #cbd5e1; }
+.stage-sub .sel-hint { color: #7dd3fc !important; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.stage-sub .sel-hint.show { opacity: 1; }
+.stage-sub .caption { color: #fef3c7 !important; font-weight: 600 !important; opacity: 0; transition: opacity .25s; }
+.stage-sub .caption::before { content: '👁 '; }
+.stage-sub .caption.show { opacity: 1; }
+.stage-top .orbit-badge { position: static !important; flex: 0 0 auto; align-self: center; transform: none !important; white-space: nowrap; font-size: 12px; padding: 5px 10px; }
+.stage-top .orbit-badge:not(.show) { display: none; }
+.stage-bottom { flex: 0 0 auto; position: relative; min-height: 40px; display: flex; align-items: center; justify-content: center; padding: 4px 10px; background: #0d2137; border-top: 1px solid rgba(148,163,184,.18); z-index: 5; }
+.stage-bottom .help-tip { position: static !important; display: block; background: none !important; box-shadow: none !important; color: #94a3b8; font-size: 12px; text-align: center; padding: 0; }
+.stage-bottom .toasts { position: absolute !important; inset: 0 !important; max-width: none !important; display: flex; align-items: center; justify-content: center; padding: 4px 8px; pointer-events: none; }
+.stage-bottom .toasts:empty { display: none; }
+.stage-bottom .toast { display: none; margin: 0; max-width: 100%; font-size: 13px; padding: 6px 12px; line-height: 1.35; animation: none; }
+.stage-bottom .toast:last-child { display: block; }
+.stage-bottom .auto-bar { position: static !important; transform: none !important; display: none; }
+body.auto-on .stage-bottom .auto-bar { display: flex; opacity: 1; }
+body.auto-on .stage-bottom .help-tip { display: none; }
+@media (max-width: 820px) {
+  .stage-top { padding: 5px 10px 4px; }
+  .stage-top .exp-head h2 { font-size: 14px; }
+  .stage-sub { height: 34px; }
+  .stage-sub > * { font-size: 12.5px !important; line-height: 17px !important; }
+  .stage-top .orbit-badge { font-size: 0; padding: 5px 8px; }
+  .stage-top .orbit-badge::before { content: '⟳ 360°'; font-size: 12px; }
+  .stage-bottom { min-height: 34px; }
+  .stage-bottom .help-tip { display: none; }
+  .stage-bottom .toast { font-size: 12px; padding: 5px 10px; }
+}
 </style>
 </head>
 <body data-mode="sgk">
@@ -1880,12 +1918,18 @@ body.exam-on.exam-away::after { content: '🔒 Bài thi đang bị che – hãy 
   <aside id="shelf" class="shelf" aria-label="Kệ dụng cụ và hoá chất"></aside>
 
   <section class="stage" id="stage">
+    <!-- dải chữ phía trên: tên thí nghiệm + mục tiêu / lời thoại hiện tượng / thẻ đang chọn (không đè lên cảnh 3D) -->
+    <div class="stage-top">
+      <div class="exp-head"><h2 id="expTitle"></h2>
+        <div class="stage-sub"><p id="expGoal"></p><div id="selHint" class="sel-hint"></div><div id="caption" class="caption"></div></div>
+      </div>
+      <div id="orbitBadge" class="orbit-badge">⟳ Đang quay 360° – chạm để về góc nhìn ban đầu</div>
+    </div>
     <div id="stage3d"></div>
-    <div class="exp-head"><h2 id="expTitle"></h2><p id="expGoal"></p></div>
-    <div id="orbitBadge" class="orbit-badge">⟳ Đang quay 360° – chạm để về góc nhìn ban đầu</div>
-    <div id="caption" class="caption"></div>
-    <div id="selHint" class="sel-hint"></div>
-    <div id="toasts" class="toasts"></div>
+    <!-- dải chữ phía dưới: thông báo thao tác, thanh máy tự làm, mẹo thao tác -->
+    <div class="stage-bottom">
+      <div class="help-tip">Kéo thẻ từ kệ thả vào dụng cụ · Kéo màn hình để xoay · Cuộn/chụm để phóng to</div>
+      <div id="toasts" class="toasts"></div>
     <div id="autoBar" class="auto-bar" role="toolbar" aria-label="Điều khiển máy tự làm">
       <div class="ab-step" id="abStep"></div>
       <div class="ab-row">
@@ -1897,7 +1941,7 @@ body.exam-on.exam-away::after { content: '🔒 Bài thi đang bị che – hãy 
         <button id="abExit" class="ab-btn exit" title="Thoát chế độ máy tự làm">✕</button>
       </div>
     </div>
-    <div class="help-tip">Kéo thẻ từ kệ thả vào dụng cụ · Kéo màn hình để xoay · Cuộn/chụm để phóng to</div>
+    </div>
   </section>
 
   <aside class="info" id="info">
